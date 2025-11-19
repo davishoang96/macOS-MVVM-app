@@ -4,15 +4,13 @@
 //
 //  Created by davis on 19/11/2025.
 //
-
 import Foundation
 import Combine
 
-class UserRegisterViewModel: ObservableObject {
+class UserRegisterViewModel: MainViewModel {
     
     private let service: UserRegisterService
   
-
     @Published var canSave: Bool = false
     @Published var acceptedTerms: Bool = false
     @Published var showAlert: Bool = false

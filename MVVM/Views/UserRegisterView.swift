@@ -6,11 +6,16 @@
 //
 import Foundation
 import SwiftUI
-
-import SwiftUI
+import SwiftData
 
 struct UserRegisterView: View {
-    @StateObject var vm = UserRegisterViewModel(service: UserRegisterService())
+	@StateObject private var vm: UserRegisterViewModel
+	
+	init(modelContext: ModelContext) {
+		_vm = StateObject(wrappedValue: UserRegisterViewModel(
+			service: UserRegisterService(modelContext: modelContext)
+		))
+	}
     
     var body: some View {
             ScrollView {
@@ -34,6 +39,17 @@ struct UserRegisterView: View {
                         TextField("Username", text: $vm.username)
                             .textFieldStyle(.roundedBorder)
                             .disableAutocorrection(true)
+                        
+                        DatePicker("Date Of Birth", selection: $vm.dateOfBirth, displayedComponents: .date)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                        
+                        Picker("Select Role", selection: $vm.userGender) {
+                            ForEach(UserGender.allCases) { gender in
+                                Text(gender.rawValue.capitalized).tag(gender)
+                            }
+                        }
+                        .pickerStyle(MenuPickerStyle())
+
                         
                         TextField("Email", text: $vm.email)
                             .textFieldStyle(.roundedBorder)
@@ -83,6 +99,7 @@ struct UserRegisterView: View {
 // MARK: - Preview
 struct RegistrationView_Previews: PreviewProvider {
     static var previews: some View {
-        UserRegisterView()
+        let container = try! ModelContainer(for: UserModel.self, configurations: ModelConfiguration(isStoredInMemoryOnly: true))
+        UserRegisterView(modelContext: container.mainContext)
     }
 }

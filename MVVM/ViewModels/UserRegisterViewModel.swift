@@ -26,14 +26,25 @@ class UserRegisterViewModel: ObservableObject {
     }
     
     @Published var email: String = ""
-    @Published var password: String = "" {
+    
+	@Published var dateOfBirth: Date = Date()
+    
+    @Published var userGender: UserGender = .Other
+
+	@Published var password: String = "" {
         didSet{
-            voidValidatePassword()
+            if(!password.isEmpty)
+            {
+                voidValidatePassword()
+            }
         }
     }
     @Published var confirmPassword: String = "" {
-        didSet {
-            voidValidatePassword()
+        didSet{
+            if(!password.isEmpty)
+            {
+                voidValidatePassword()
+            }
         }
     }
     
@@ -82,15 +93,34 @@ class UserRegisterViewModel: ObservableObject {
             return
         }
         
-        if(await service.register(username: self.username, password: self.password))
+        do
         {
-            alertMessage = "User \(username) registered successfully!"
+            var user = try await self.service.createUser(username: self.username, email: self.email, password: self.password, dob: self.dateOfBirth, gender: self.userGender.rawValue)
+            
+            if(user != nil)
+            {
+                alertMessage = "User \(username) registered successfully!"
+                ResetForm()
+            }
+            else
+            {
+                alertMessage = "User \(username) registered failed!"
+            }
+            
+            showAlert = true
         }
-        else
+        catch(let error)
         {
-            alertMessage = "User \(username) registered failed!"
+            print(error)
         }
-        
-        showAlert = true
+    }
+    
+    private func ResetForm()
+    {
+        username = ""
+        password = ""
+        email = ""
+        confirmPassword = ""
+        dateOfBirth = Date()
     }
 }
